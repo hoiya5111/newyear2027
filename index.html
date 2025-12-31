@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Countdown New Year 2027</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: radial-gradient(circle at top, #2c004f, #050014);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.container {
+    text-align: center;
+    padding: 50px;
+    border-radius: 35px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 0 60px rgba(0,255,255,0.6);
+}
+
+h1 {
+    font-size: 3.2rem;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #ffd6ff, #9fffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    opacity: 0.85;
+    margin-bottom: 30px;
+}
+
+.countdown {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+.box {
+    background: rgba(0,0,0,0.45);
+    padding: 25px 15px;
+    border-radius: 25px;
+}
+
+.number {
+    font-size: 3.5rem;
+    font-weight: 900;
+    text-shadow: 0 0 20px rgba(0,255,255,0.9);
+}
+
+.label {
+    margin-top: 5px;
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+/* ปุ่มเต็มจอ */
+.fullscreen-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    padding: 14px 24px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    background: linear-gradient(135deg,#ff66ff,#66ffff);
+    box-shadow: 0 0 25px rgba(255,255,255,0.7);
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="app">
+    <h1>🎆 Happy New Year 2027 🎆</h1>
+    <div class="subtitle">นับถอยหลังสู่ปีใหม่</div>
+
+    <div class="countdown">
+        <div class="box">
+            <div class="number" id="d">0</div>
+            <div class="label">วัน</div>
+        </div>
+        <div class="box">
+            <div class="number" id="h">0</div>
+            <div class="label">ชั่วโมง</div>
+        </div>
+        <div class="box">
+            <div class="number" id="m">0</div>
+            <div class="label">นาที</div>
+        </div>
+        <div class="box">
+            <div class="number" id="s">0</div>
+            <div class="label">วินาที</div>
+        </div>
+    </div>
+</div>
+
+<button class="fullscreen-btn" id="fs">⛶ เต็มจอ</button>
+
+<script>
+/* ===== ตั้งเวลาเป้าหมาย ===== */
+const target = new Date("2027-01-01T00:00:00").getTime();
+
+/* ===== ระบบเสียง (Beep) ===== */
+let audioCtx;
+function playBeep(freq = 800, duration = 0.15) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.frequency.value = freq;
+    osc.type = "sine";
+    gain.gain.value = 0.2;
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+let lastSecond = null;
+
+/* ===== Countdown ===== */
+setInterval(() => {
+    const now = new Date().getTime();
+    const diff = target - now;
+
+    if (diff <= 0) {
+        document.getElementById("app").innerHTML =
+            "<h1>🎉 Happy New Year 2027 🎉</h1><div class='subtitle'>ขอให้มีความสุขตลอดปี ✨</div>";
+        playBeep(1200, 0.5);
+        return;
+    }
+
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor(diff % 86400000 / 3600000);
+    const minutes = Math.floor(diff % 3600000 / 60000);
+    const seconds = Math.floor(diff % 60000 / 1000);
+
+    document.getElementById("d").innerText = days;
+    document.getElementById("h").innerText = hours;
+    document.getElementById("m").innerText = minutes;
+    document.getElementById("s").innerText = seconds;
+
+    /* 🔊 เสียงนับถอยหลัง 10 วิสุดท้าย */
+    if (days === 0 && hours === 0 && minutes === 0 && seconds <= 10) {
+        if (seconds !== lastSecond) {
+            playBeep(seconds <= 3 ? 1200 : 800);
+            lastSecond = seconds;
+        }
+    }
+
+}, 1000);
+
+/* ===== Fullscreen ===== */
+document.getElementById("fs").onclick = () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+};
+</script>
+
+</body>
+</html>
